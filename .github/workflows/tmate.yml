@@ -1,0 +1,25 @@
+name: tmate vps
+on:
+  workflow_dispatch:
+jobs:
+  vps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup tmate session
+        id: tmate
+        uses: mxschmitt/action-tmate@v3
+        with:
+          detached: true
+      - name: Save SSH command
+        run: |
+          echo "${{ steps.tmate.outputs.ssh-command }}" > ssh.txt
+          echo "${{ steps.tmate.outputs.web-url }}" >> ssh.txt
+      - name: Upload SSH artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ssh-cmd
+          path: ssh.txt
+      - name: Keep alive for test
+        run: sleep 900

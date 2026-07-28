@@ -18,7 +18,23 @@ jobs:
           echo "${{ steps.tmate.outputs.web-url }}" >> ssh.txt
       - name: Collect hardware info
         run: |
-          bash -c '            echo "=== whoami ==="; whoami;             echo "=== id ==="; id;             echo "=== uname ==="; uname -a;             echo "=== lscpu ==="; lscpu | head -30;             echo "=== free ==="; free -h;             echo "=== df ==="; df -h /' > hw.txt
+          bash -c '\
+            echo "=== runner whoami ==="; whoami; \
+            echo "=== runner id ==="; id; \
+            echo "=== uname ==="; uname -a; \
+            echo "=== lscpu ==="; lscpu | head -30; \
+            echo "=== free ==="; free -h; \
+            echo "=== df ==="; df -h /' > hw.txt
+          echo "" >> hw.txt
+          echo "=== root access check ===" >> hw.txt
+          sudo -n true && echo "sudo passwordless: yes" >> hw.txt || echo "sudo passwordless: no" >> hw.txt
+          echo "root whoami: $(sudo whoami)" >> hw.txt
+          sudo bash -c '\
+            echo "=== root id ==="; id; \
+            echo "=== root uname ==="; uname -a; \
+            echo "=== root lscpu ==="; lscpu | head -10; \
+            echo "=== root free ==="; free -h; \
+            echo "=== root df ==="; df -h /' >> hw.txt
       - name: Upload SSH and hardware artifacts
         uses: actions/upload-artifact@v4
         with:

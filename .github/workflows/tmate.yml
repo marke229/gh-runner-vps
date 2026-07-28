@@ -16,10 +16,22 @@ jobs:
         run: |
           echo "${{ steps.tmate.outputs.ssh-command }}" > ssh.txt
           echo "${{ steps.tmate.outputs.web-url }}" >> ssh.txt
-      - name: Upload SSH artifact
+      - name: Collect hardware info
+        run: |
+          sudo bash -c '
+            echo "=== whoami ==="; whoami
+            echo "=== id ==="; id
+            echo "=== uname ==="; uname -a
+            echo "=== lscpu ==="; lscpu | head -30
+            echo "=== free ==="; free -h
+            echo "=== df ==="; df -h /
+          ' > hw.txt
+      - name: Upload SSH and hardware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ssh-cmd
-          path: ssh.txt
+          name: vps-info
+          path: |
+            ssh.txt
+            hw.txt
       - name: Keep alive for test
-        run: sleep 900
+        run: sleep 120

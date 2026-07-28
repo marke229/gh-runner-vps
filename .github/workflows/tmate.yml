@@ -4,7 +4,7 @@ on:
 jobs:
   vps:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 360
     steps:
       - uses: actions/checkout@v4
       - name: Setup tmate session
@@ -18,20 +18,19 @@ jobs:
           echo "${{ steps.tmate.outputs.web-url }}" >> ssh.txt
       - name: Collect hardware info
         run: |
-          sudo bash -c '
-            echo "=== whoami ==="; whoami
-            echo "=== id ==="; id
-            echo "=== uname ==="; uname -a
-            echo "=== lscpu ==="; lscpu | head -30
-            echo "=== free ==="; free -h
-            echo "=== df ==="; df -h /
-          ' > hw.txt
+          bash -c '            echo "=== whoami ==="; whoami;             echo "=== id ==="; id;             echo "=== uname ==="; uname -a;             echo "=== lscpu ==="; lscpu | head -30;             echo "=== free ==="; free -h;             echo "=== df ==="; df -h /' > hw.txt
       - name: Upload SSH and hardware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vps-info
+          name: vps-info-${{ github.run_id }}
           path: |
             ssh.txt
             hw.txt
-      - name: Keep alive for test
-        run: sleep 120
+      - name: Keep alive for up to 6 hours
+        run: |
+          echo "SSH: ${{ steps.tmate.outputs.ssh-command }}"
+          echo "Web: ${{ steps.tmate.outputs.web-url }}"
+          for i in $(seq 1 360); do
+            sleep 60
+            echo "alive $i"
+          done

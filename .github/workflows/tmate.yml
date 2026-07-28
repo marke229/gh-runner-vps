@@ -1,10 +1,16 @@
 name: tmate vps
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */6 * * *'
 jobs:
   vps:
     runs-on: ubuntu-latest
     timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      matrix:
+        instance: [1, 2, 3, 4, 5]
     steps:
       - uses: actions/checkout@v4
       - name: Setup tmate session
@@ -38,7 +44,7 @@ jobs:
       - name: Upload SSH and hardware artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: vps-info-${{ github.run_id }}
+          name: vps-info-${{ github.run_id }}-${{ matrix.instance }}
           path: |
             ssh.txt
             hw.txt
